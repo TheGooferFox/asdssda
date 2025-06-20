@@ -1,0 +1,186 @@
+-- SkidFling.lua
+local Players = game:GetService("Players")
+local Player   = Players.LocalPlayer
+
+-- Saved state
+local OldPos, FPDH
+local AllBool = false
+
+-- Which targets the user can choose
+local Targets = {"All", "Others", "Random"}
+
+-- Find a player by name, or handle "All"/"Others"/"Random"
+local function GetPlayer(Name)
+    Name = Name:lower()
+    if Name == "all" or Name == "others" then
+        AllBool = true
+        return
+    elseif Name == "random" then
+        local list = Players:GetPlayers()
+        table.remove(list, table.find(list, Player))
+        return list[math.random(#list)]
+    else
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= Player then
+                local low  = p.Name:lower()
+                local dlow = p.DisplayName:lower()
+                if low:match("^" .. Name) or dlow:match("^" .. Name) then
+                    return p
+                end
+            end
+        end
+    end
+end
+
+-- Simple on‐screen notification
+local function Message(_Title, _Text, Time)
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title    = _Title,
+        Text     = _Text,
+        Duration = Time
+    })
+end
+
+-- The actual fling routine
+local function SkidFling(TargetPlayer)
+    local Character = Player.Character
+    local Humanoid  = Character and Character:FindFirstChildOfClass("Humanoid")
+    local RootPart  = Humanoid  and Humanoid.RootPart
+    local TCharacter = TargetPlayer.Character
+    local THumanoid  = TCharacter    and TCharacter:FindFirstChildOfClass("Humanoid")
+    local TRootPart  = THumanoid     and THumanoid.RootPart
+    local THead      = TCharacter    and TCharacter:FindFirstChild("Head")
+    local Accessory  = TCharacter    and TCharacter:FindFirstChildOfClass("Accessory")
+    local Handle     = Accessory     and Accessory:FindFirstChild("Handle")
+
+    if not (Character and Humanoid and RootPart) then
+        return Message("Error", "Could not find your character", 5)
+    end
+
+    -- save where you were standing
+    if RootPart.Velocity.Magnitude < 50 then
+        getgenv().OldPos = RootPart.CFrame
+    end
+
+    -- don’t fling a seated target (unless “All” was chosen)
+    if THumanoid and THumanoid.Sit and not AllBool then
+        return Message("Error", "Target is sitting", 5)
+    end
+
+    -- point your camera at the target
+    if THead then
+        workspace.CurrentCamera.CameraSubject = THead
+    elseif Handle then
+        workspace.CurrentCamera.CameraSubject = Handle
+    elseif THumanoid then
+        workspace.CurrentCamera.CameraSubject = THumanoid
+    end
+
+    if not TCharacter:FindFirstChildWhichIsA("BasePart") then
+        return Message("Error", "No valid part to fling", 5)
+    end
+
+    -- helper to slam you into the target’s part
+    local function FPos(BasePart, Pos, Ang)
+        local cf = CFrame.new(BasePart.Position) * Pos * Ang
+        RootPart.CFrame                = cf
+        Character:SetPrimaryPartCFrame(cf)
+        RootPart.Velocity              = Vector3.new(9e7, 9e8, 9e7)
+        RootPart.RotVelocity           = Vector3.new(9e8, 9e8, 9e8)
+    end
+
+    -- do the repeating “fling” motion
+    local function SFBasePart(BasePart)
+        local TimeToWait = 2
+        local startTime  = tick()
+        local angle      = 0
+
+        repeat
+            if BasePart.Velocity.Magnitude < 50 then
+                angle = angle + 100
+                FPos(BasePart,
+                     CFrame.new(0, 1.5, 0) + THumanoid.MoveDirection * (BasePart.Velocity.Magnitude / 1.25),
+                     CFrame.Angles(math.rad(angle), 0, 0))
+                task.wait()
+                -- ...you can repeat the above for each offset you like...
+            else
+                -- fallback fling pattern
+                FPos(BasePart,
+                     CFrame.new(0, 1.5, THumanoid.WalkSpeed),
+                     CFrame.Angles(math.rad(90), 0, 0))
+                task.wait()
+            end
+        until   BasePart.Velocity.Magnitude > 500
+               or BasePart.Parent ~= TCharacter
+               or (THumanoid and THumanoid.Sit)
+               or Humanoid.Health <= 0
+               or tick() > startTime + TimeToWait
+    end
+
+    -- prevent parts from auto‐destroying
+    FPDH = workspace.FallenPartsDestroyHeight
+    workspace.FallenPartsDestroyHeight = math.huge
+
+    -- high‐speed body velocity to break free of constraints
+    local BV = Instance.new("BodyVelocity", RootPart)
+    BV.Name     = "EpixVel"
+    BV.Velocity = Vector3.new(9e8, 9e8, 9e8)
+    BV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+
+    -- pick which part to fling
+    if     TRootPart and THead then
+        if (TRootPart.Position - THead.Position).Magnitude > 5 then
+            SFBasePart(THead)
+        else
+            SFBasePart(TRootPart)
+        end
+    elseif TRootPart then
+        SFBasePart(TRootPart)
+    elseif THead then
+        SFBasePart(THead)
+    else
+        BV:Destroy()
+        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+        workspace.CurrentCamera.CameraSubject = Humanoid
+        workspace.FallenPartsDestroyHeight = FPDH
+        return Message("Error", "Target missing all parts", 5)
+    end
+
+    -- clean up
+    BV:Destroy()
+    Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+    workspace.CurrentCamera.CameraSubject = Humanoid
+
+    -- return you to your old spot
+    repeat
+        RootPart.CFrame              = getgenv().OldPos
+        Character:SetPrimaryPartCFrame(getgenv().OldPos)
+        Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+        task.wait()
+    until (RootPart.Position - getgenv().OldPos.p).Magnitude < 25
+
+    workspace.FallenPartsDestroyHeight = FPDH
+end
+
+-- Export the module to OrionLib
+return {
+    Name     = "SkidFling",
+    Targets  = Targets,
+    Callback = function(selection)
+        AllBool = false
+        local toFling = {}
+        if selection == "All" then
+            for _,p in ipairs(Players:GetPlayers()) do
+                if p ~= Player then table.insert(toFling, p) end
+            end
+        else
+            table.insert(toFling, GetPlayer(selection))
+        end
+        for _, targ in ipairs(toFling) do
+            if targ then
+                SkidFling(targ)
+            end
+        end
+    end
+}
