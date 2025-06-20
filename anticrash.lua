@@ -1,113 +1,64 @@
--- Anti-Crash Pro v2 (fixed)
+-- Debug Anti-Crash v2
 
-local Players           = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local StarterGui        = game:GetService("StarterGui")
-local NetworkSettings   = game:GetService("NetworkSettings")
-local LocalPlayer       = Players.LocalPlayer
+local Players     = game:GetService("Players")
+local RS          = game:GetService("ReplicatedStorage")
+local StarterGui  = game:GetService("StarterGui")
+local LocalPlayer = Players.LocalPlayer
 
--- your CrashMethod must already be in _G
-assert(type(_G.CrashMethod) == "function", "CrashMethod() not found")
-local CrashMethod = _G.CrashMethod
+-- grab and verify your real crash function
+local globalCrash = _G.CrashMethod
+assert(globalCrash, "❌ _G.CrashMethod is nil")
+print("DBG → _G.CrashMethod is a", typeof(globalCrash), globalCrash)
 
--- the RemoteEvent the server uses for crash calls
-local REMOTE_NAME     = "ReplicateEvent"
-local replicateEvent  = ReplicatedStorage:WaitForChild(REMOTE_NAME)
-
--- helper for system chat messages
-local function SysMessage(text, color)
+-- fresh, collision-free msg helper
+local function dbgMsg(txt, col)
+    print("DBG Msg:", txt)
     StarterGui:SetCore("ChatMakeSystemMessage", {
-        Text     = text;
-        Color    = color or Color3.fromRGB(255,0,0);
+        Text     = txt;
+        Color    = col or Color3.fromRGB(255,0,0);
         Font     = Enum.Font.SourceSansBold;
         FontSize = Enum.FontSize.Size24;
     })
 end
+print("DBG → dbgMsg is a", typeof(dbgMsg), dbgMsg)
 
--- helper to disable all connections on a signal (exploit env only)
-local function disableAll(signal)
-    if type(getconnections) == "function" then
-        for _, conn in ipairs(getconnections(signal)) do
-            conn:Disable()
-        end
+-- safe wrapper so we never accidentally call a string
+local function safeCrash(...)
+    if typeof(globalCrash) ~= "function" then
+        error("❌ globalCrash is not a function but a "..typeof(globalCrash))
     end
+    return globalCrash(...)
 end
 
--- main listener
-replicateEvent.OnClientEvent:Connect(function(crashType, arg)
-    SysMessage("⚠️ Detected crash: "..tostring(crashType))
+-- hook the server event
+local ev = RS:WaitForChild("ReplicateEvent")
+ev.OnClientEvent:Connect(function(crashType, instigator)
+    dbgMsg("⚠ Caught crashType="..tostring(crashType), Color3.fromRGB(255,200,0))
+    print(debug.traceback("Traceback at catch",2))
 
-    -- run a quick “anti” for each crash
-    if crashType == "servercrash" then
-        pcall(function()
-            LocalPlayer.PlayerScripts.ClientGunReplicator.Disabled = true
-        end)
-        SysMessage("🛡️ Blocked servercrash", Color3.fromRGB(255,255,0))
+    -- (optional) your per-crash blocking logic here…
 
-    elseif crashType == "lastresort" then
-        local shoot = ReplicatedStorage:FindFirstChild("ShootEvent")
-        if shoot then disableAll(shoot.OnClientEvent) end
-        SysMessage("🛡️ Blocked lastresort", Color3.fromRGB(255,255,0))
-
-    elseif crashType == "crashkill" then
-        SysMessage("🛡️ Blocked crashkill", Color3.fromRGB(255,255,0))
-
-    elseif crashType == "serverlag" or crashType == "serverspike" then
-        local shoot = ReplicatedStorage:FindFirstChild("ShootEvent")
-        if shoot then disableAll(shoot.OnClientEvent) end
-        SysMessage("🛡️ Blocked "..crashType, Color3.fromRGB(255,255,0))
-
-    elseif crashType == "timeout" or crashType == "tasercrash" then
-        local shoot = ReplicatedStorage:FindFirstChild("ShootEvent")
-        if shoot then disableAll(shoot.OnClientEvent) end
-        SysMessage("🛡️ Blocked "..crashType, Color3.fromRGB(255,255,0))
-
-    elseif crashType == "timestop" then
-        SysMessage("🛡️ Blocked timestop", Color3.fromRGB(255,255,0))
-
-    elseif crashType == "itemlag" then
-        if LocalPlayer.Character then
-            for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
-                if tool:IsA("Tool") then
-                    tool.Parent = LocalPlayer.Backpack
-                end
-            end
-        end
-        SysMessage("🛡️ Blocked itemlag", Color3.fromRGB(255,255,0))
-
-    elseif crashType == "forcecrash" then
-        SysMessage("🛡️ Caught forcecrash incoming", Color3.fromRGB(255,255,0))
-
-    elseif crashType == "formidicrash"
-       or crashType == "eventcrash"
-       or crashType == "eventlag"
-       or crashType == "soundlag" then
-
-        pcall(function()
-            NetworkSettings.IncomingReplicationLag = 0
-        end)
-        SysMessage("🛡️ Blocked "..crashType, Color3.fromRGB(255,255,0))
-
-    else
-        SysMessage("⚠️ Unknown crash: "..tostring(crashType), Color3.fromRGB(255,165,0))
-    end
-
-    -- figure out who sent it
+    -- figure out culprit
     local culprit
-    if typeof(arg) == "Instance" and arg:IsA("Player") then
-        culprit = arg
-    elseif typeof(arg) == "string" then
-        culprit = Players:FindFirstChild(arg)
+    if typeof(instigator)=="Instance" and instigator:IsA("Player") then
+        culprit = instigator
+    elseif typeof(instigator)=="string" then
+        culprit = Players:FindFirstChild(instigator)
     end
+    print("DBG → culprit is", culprit, typeof(culprit))
 
-    -- retaliate
-    if culprit and culprit ~= LocalPlayer then
-        CrashMethod("forcecrash", culprit)
-        SysMessage("💥 Retaliated on "..culprit.Name.."!", Color3.fromRGB(0,255,0))
+    -- retaliate safely
+    if culprit and culprit~=LocalPlayer then
+        print("DBG → about to call safeCrash")
+        local ok,err = pcall(safeCrash, "forcecrash", culprit)
+        if not ok then
+            dbgMsg("💥 safeCrash failed: "..tostring(err), Color3.fromRGB(255,0,0))
+        else
+            dbgMsg("💥 Retaliated on "..culprit.Name, Color3.fromRGB(0,255,0))
+        end
     else
-        SysMessage("ℹ️ No valid culprit to crash back.", Color3.fromRGB(255,255,0))
+        dbgMsg("ℹ No valid culprit", Color3.fromRGB(255,255,255))
     end
 end)
 
--- ready confirmation
-SysMessage("✅ Anti-Crash Pro v2 active!", Color3.fromRGB(0,200,255))
+dbgMsg("✅ Debug Anti-Crash v2 loaded", Color3.fromRGB(0,200,255))
