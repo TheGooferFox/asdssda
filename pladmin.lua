@@ -21,4 +21,4 @@ PLadmin_Settings = {
   RankedOutput = true; --Chat the output commands of ranked players
   WhisperToRanked = false; --Use whisper for outputing commands for ranked players
 };wait()
-loadstring(game:HttpGet('https://raw.githubusercontent.com/wrtrteyteey23ee/PrizzLife/refs/heads/main/Source/release_v0.8.1.lua'))()
+loadstring(game:HttpGet('https://raw.githubusercontent.com/devguy100/PrizzLife/main/pladmin.lua'))()
