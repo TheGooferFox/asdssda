@@ -2760,18 +2760,10 @@ ExtraScriptsMainSection:AddButton({
 })
 
 ExtraScriptsMainSection:AddButton({
-	Name = "Prison Life Admin";
+	Name = "PrizzLife Admin Script";
 	Callback = function()
-		loadstring(game:HttpGet('https://raw.githubusercontent.com/devguy100/PrizzLife/main/pladmin.lua'))()
-		Notif("Corgiside Exploits", "Successfully Loaded Prison Life Admin")
-	end,
-})
-
-ExtraScriptsMainSection:AddButton({
-	Name = "Corgi's ESP(Couldn't fix)";
-	Callback = function()
-		loadstring(game:HttpGet('https://raw.githubusercontent.com/Pedro0239485y7/Corgi-s-ESP/refs/heads/main/ESPGuiObfuscated.lua', true))()
-		Notif("Corgiside Exploits", "Successfully Loaded Corgi's ESP")
+		loadstring(game:HttpGet('https://raw.githubusercontent.com/TheGooferFox/asdssda/refs/heads/main/pladmin.lua'))()
+		Notif("Corgiside Exploits", "Successfully Loaded PrizzLife Admin")
 	end,
 })
 
@@ -2799,21 +2791,6 @@ ExtraScriptsMainSection:AddButton({
 	end,
 })
 
-ExtraScriptsMainSection:AddButton({
-	Name = "Impact Hub(Doesn't work)";
-	Callback = function()
-		loadstring(game:HttpGet("https://zygomorphic-jobyna-impacthub-3d96c239.koyeb.app/main.lua"))()
-		Notif("Corgiside Exploits", "Successfully Loaded Impact Hub")
-	end,
-})
-
-ExtraScriptsMainSection:AddButton({
-	Name = "PrizzLife();";
-	Callback = function()
-		loadstring(game:HttpGet('https://raw.githubusercontent.com/devguy100/PrizzLife/main/pladmin.lua'))()
-		Notif("Corgiside Exploits", "Successfully Loaded PrizzLife();")
-	end,
-})
 
 TeleportsMainSection:AddButton({
 	Name = "NSpawn",
