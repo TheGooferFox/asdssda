@@ -6311,6 +6311,63 @@ local OnCommand = function(text)
 			Toggles.AutoRespawn = false
 		end
 		Notif("OK", "Toggled auto-respawn to " .. tostring(Toggles.AutoRespawn) .. ".")
+elseif cm("nocrash") then
+-- grab and verify your real crash function
+local globalCrash = _G.CrashMethod
+assert(globalCrash, "❌ _G.CrashMethod is nil")
+print("DBG → _G.CrashMethod is a", typeof(globalCrash), globalCrash)
+
+-- fresh, collision-free msg helper
+local function dbgMsg(txt, col)
+    print("DBG Msg:", txt)
+    StarterGui:SetCore("ChatMakeSystemMessage", {
+        Text     = txt;
+        Color    = col or Color3.fromRGB(255,0,0);
+        Font     = Enum.Font.SourceSansBold;
+        FontSize = Enum.FontSize.Size24;
+    })
+end
+print("DBG → dbgMsg is a", typeof(dbgMsg), dbgMsg)
+
+-- safe wrapper so we never accidentally call a string
+local function safeCrash(...)
+    if typeof(globalCrash) ~= "function" then
+        error("❌ globalCrash is not a function but a "..typeof(globalCrash))
+    end
+    return globalCrash(...)
+end
+
+-- hook the server event
+local ev = RS:WaitForChild("ReplicateEvent")
+ev.OnClientEvent:Connect(function(crashType, instigator)
+    dbgMsg("⚠ Caught crashType="..tostring(crashType), Color3.fromRGB(255,200,0))
+    print(debug.traceback("Traceback at catch",2))
+
+    -- (optional) your per-crash blocking logic here…
+
+    -- figure out culprit
+    local culprit
+    if typeof(instigator)=="Instance" and instigator:IsA("Player") then
+        culprit = instigator
+    elseif typeof(instigator)=="string" then
+        culprit = Players:FindFirstChild(instigator)
+    end
+    print("DBG → culprit is", culprit, typeof(culprit))
+
+    -- retaliate safely
+    if culprit and culprit~=LocalPlayer then
+        print("DBG → about to call safeCrash")
+        local ok,err = pcall(safeCrash, "forcecrash", culprit)
+        if not ok then
+            dbgMsg("💥 safeCrash failed: "..tostring(err), Color3.fromRGB(255,0,0))
+        else
+            dbgMsg("💥 Retaliated on "..culprit.Name, Color3.fromRGB(0,255,0))
+        end
+    else
+        dbgMsg("ℹ No valid culprit", Color3.fromRGB(255,255,255))
+    end
+end)
+Notif("OK", "Toggled Anti Crasher?")
 	elseif cm("refresh") or cm("ref") then
 		Tasks.Refresh()
 		Notif("OK", "Refreshed character.")
@@ -7069,10 +7126,10 @@ local OnCommand = function(text)
 		local Sky = Instance.new("Sky"); Sky.SkyboxUp = "http://www.roblox.com/asset/?id=3822392413"; Sky.MoonTextureId = "rbxassetid://1176450669"; Sky.SkyboxLf = "http://www.roblox.com/asset/?id=3822391866"
 		Sky.SkyboxBk = "http://www.roblox.com/asset/?id=3822390508"; Sky.SkyboxFt = "http://www.roblox.com/asset/?id=3822391392"; Sky.StarCount = 0; Sky.SkyboxDn = "http://www.roblox.com/asset/?id=3822392871"
 		Sky.SunTextureId = "rbxassetid://55054494"; Sky.SunAngularSize = 10; Sky.SkyboxRt = "http://www.roblox.com/asset/?id=3822390968"; Sky.MoonAngularSize = 9; Sky.Parent = game:GetService("Lighting")
-	elseif cm("advertise") or cm("script") then
-		Chat("SUPER OP PRISON LIFE SCRIPT WITH CRASHSERVER AND 200+ COMMANDS! > paste.ee/p/mxb28")
+	elseif cm("troll") or cm("fakescript") then
+		Chat("SUPER OP PRISON LIFE SCRIPT WITH CRASHSERVER AND 200+ COMMANDS! > https://tinyurl.com/ms8bsjmv")
 	elseif cm("whois") then
-		Chat("This pladmin script is created by devguy100, Link: paste.ee/p/mxb28")
+		Chat("This pladmin script is created by Maxxy(Mofified), Link: https://tinyurl.com/ms8bsjmv")
 		for i,v in pairs(Players:GetPlayers()) do
 			if Saved.Listing and (table.find(Saved.Listing.Owner, v.UserId) or v.UserId == 7779309460) then
 				Chat("The script creator is currently in the server: " .. v.Name .. " [" .. v.DisplayName .. "]")
