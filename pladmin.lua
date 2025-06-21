@@ -10158,7 +10158,6 @@ task.spawn(function()
 	AddList("crashnuke / cnuke [plr,random]", "deathnuke but the server crashes instead (CANNOT UNDO)", false) --V
 	AddList("laggygun / laggun", "Gives you remington 870 that lags the server when fired", false) --G
 	AddList("spike / freeze", "Lag spike everyone (Depends on their device)", false) --V
-AddList("nocrash", "Anti Crasher", false) --G
 	AddList("placeholdercrash / crash4", "Crashes the server using every single gun", false) --too useless
 
 	AddList("MISC CMDS", false, true) -- MISCELLANEOUS
