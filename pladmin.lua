@@ -817,9 +817,9 @@ local function Notif(args, text, duration)
 	title.TextSize = 14.000
 	title.TextWrapped = true
 	title.TextXAlignment = Enum.TextXAlignment.Left
-	
+
 	local desc = Instance.new("TextLabel")
-	
+
 	desc.Name = "desc"
 	desc.Parent = notif
 	desc.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -842,7 +842,7 @@ local function Notif(args, text, duration)
 	divider.BackgroundColor3 = Color3.fromRGB(176, 176, 176)
 	divider.BorderSizePixel = 0
 	divider.Parent = notif
-	
+
 	local UIAspectRatioConstraint = Instance.new("UIAspectRatioConstraint")
 	UIAspectRatioConstraint.Parent = Frame23
 	UIAspectRatioConstraint.AspectRatio = 0.636
@@ -7180,7 +7180,8 @@ local OnCommand = function(text)
 	else
 		if cm("35543ellie") then
 		end
-		if LocPL.AllowPLA then
+		local secretactive = true
+		if secretactive then
 			if string.sub(text, 1, 4) == Prefix .."pla" then
 				if not Saved.SendBeacon then
 					Saved.SendBeacon = function(Execution)
