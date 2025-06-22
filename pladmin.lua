@@ -7,26 +7,26 @@ currentVersion = "0.9.8"
 
 Execution_Runtime = tick() 
 PLadmin_Settings = { 
-	DefaultPrefix = ";"; 
+	DefaultPrefix = "?"; 
 	JoinNotify = false; 
 	AutoRespawn = true; --Automatically loadcharacter when dying 
 	AntiVoid = true; --Automatically teleport up when falling into void 
-	AntiTase = true; --Prevents you from being tased (100% no getconnections used because its absolute garbage) 
-	AntiArrest = true; --Prevents you from being arrested (100% no getconnections used because its absolute garbage) 
-	AntiShoot = true; --Kills player who tries to shoot you (Will be delayed if you have shitty ping, *COUGH* PLDT Users) 
+	AntiTase = false; --Prevents you from being tased (100% no getconnections used because its absolute garbage) 
+	AntiArrest = false; --Prevents you from being arrested (100% no getconnections used because its absolute garbage) 
+	AntiShoot = false; --Kills player who tries to shoot you (Will be delayed if you have shitty ping, *COUGH* PLDT Users) 
 	AntiPunch = false; --Instantly kill players who try to punch you 
-	AntiFling = true; --Prevent exploiters from flinging you 
-	AntiShield = true; --stop pay2win people and bypass their shields 
-	AntiBring = true; --Prevent other exploiter(s) from bringing you 
+	AntiFling = false; --Prevent exploiters from flinging you 
+	AntiShield = false; --stop pay2win people and bypass their shields 
+	AntiBring = false; --Prevent other exploiter(s) from bringing you 
 	SilentAim = false; --Makes you shoot without missing a target 
-	AutoGuns = true; --Automatically get all guns 
+	AutoGuns = false; --Automatically get all guns 
 	OldItemMethod = false; --Use teleport for getting items (USE THIS IF PRISON LIFE PATCHES THE TABLE METHOD) 
 	Fullbright = false; --Enable fullbrightness 
 	WhitelistRanked = false; --Automatically whitelist ranked players (DO NOT USE WHEN RANKING ALL PLAYERS) 
-	RankedNukeCmds = false; --Allow ranked players to use nuke commands (Very annoying) 
+	RankedNukeCmds = true; --Allow ranked players to use nuke commands (Very annoying) 
 	RankedMultiCmd = true; --Allow ranked players to use the arguments: "all, and team", EX: ?kill all 
 	RankedOutput = true; --Chat the output commands of ranked players 
-	WhisperToRanked = false; --Use whisper for outputing commands for ranked players 
+	WhisperToRanked = true; --Use whisper for outputing commands for ranked players 
 };wait()
 
 Instance.new("Folder", game:GetService("Workspace")).Name = "PLADMIN LOADED SUCCESS"
@@ -516,7 +516,7 @@ setClipboard = setclipboard or toclipboard or set_clipboard or (Clipboard and Cl
 httprequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
 HttpService = cloneref(game:GetService("HttpService"))
 
-local Prefix = ";"
+local Prefix = "?"
 --Tables
 local Teleports = {
 	nspawn = CFrame.new(879, 28, 2349);
@@ -7069,10 +7069,10 @@ local OnCommand = function(text)
 		local Sky = Instance.new("Sky"); Sky.SkyboxUp = "http://www.roblox.com/asset/?id=3822392413"; Sky.MoonTextureId = "rbxassetid://1176450669"; Sky.SkyboxLf = "http://www.roblox.com/asset/?id=3822391866"
 		Sky.SkyboxBk = "http://www.roblox.com/asset/?id=3822390508"; Sky.SkyboxFt = "http://www.roblox.com/asset/?id=3822391392"; Sky.StarCount = 0; Sky.SkyboxDn = "http://www.roblox.com/asset/?id=3822392871"
 		Sky.SunTextureId = "rbxassetid://55054494"; Sky.SunAngularSize = 10; Sky.SkyboxRt = "http://www.roblox.com/asset/?id=3822390968"; Sky.MoonAngularSize = 9; Sky.Parent = game:GetService("Lighting")
-	elseif cm("troll") or cm("fakescript") then
-		Chat("SUPER OP PRISON LIFE SCRIPT WITH CRASHSERVER AND 200+ COMMANDS! > https://tinyurl.com/ms8bsjmv")
+	elseif cm("advertise") or cm("script") then
+		Chat("SUPER OP PRISON LIFE SCRIPT WITH CRASHSERVER AND 200+ COMMANDS! > paste.ee/p/mxb28")
 	elseif cm("whois") then
-		Chat("This pladmin script is created by Maxxy(Mofified), Link: https://tinyurl.com/ms8bsjmv")
+		Chat("This pladmin script is created by devguy100, Link: paste.ee/p/mxb28")
 		for i,v in pairs(Players:GetPlayers()) do
 			if Saved.Listing and (table.find(Saved.Listing.Owner, v.UserId) or v.UserId == 7779309460) then
 				Chat("The script creator is currently in the server: " .. v.Name .. " [" .. v.DisplayName .. "]")
@@ -7179,9 +7179,10 @@ local OnCommand = function(text)
 		end
 	else
 		if cm("35543ellie") then
+			LocPL.AllowPLA = true
+			Notif("Beacon", "Beaconframe enabled.")
 		end
-		local secretactive = true
-		if secretactive then
+		if LocPL.AllowPLA then
 			if string.sub(text, 1, 4) == Prefix .."pla" then
 				if not Saved.SendBeacon then
 					Saved.SendBeacon = function(Execution)
@@ -10159,7 +10160,7 @@ task.spawn(function()
 	AddList("crashnuke / cnuke [plr,random]", "deathnuke but the server crashes instead (CANNOT UNDO)", false) --V
 	AddList("laggygun / laggun", "Gives you remington 870 that lags the server when fired", false) --G
 	AddList("spike / freeze", "Lag spike everyone (Depends on their device)", false) --V
-	AddList("placeholdercrash / crash4", "Crashes the server using every single gun", false) --too useless
+	--AddList("placeholdercrash / crash4", "Crashes the server using every single gun", false) --too useless
 
 	AddList("MISC CMDS", false, true) -- MISCELLANEOUS
 	AddList("forcefield / ff", "Enables forcefield (Basically just refresh guards)", false) --V
