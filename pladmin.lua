@@ -7178,7 +7178,7 @@ local OnCommand = function(text)
 			v:Destroy()
 		end
 	else
-		if cm("35543ellie") then
+		if cm("prem") then
 			LocPL.AllowPLA = true
 			Notif("Beacon", "Beaconframe enabled.")
 		end
@@ -10239,7 +10239,8 @@ task.spawn(function()
 	AddList("mcdonalds", "Teleport you to mcdonalds (ONLY YOU CAN SEE IT)", false) --
 	AddList("minecraft", "Replace default skybox with a minecraft one", false) --
 
-	--[[ SUPER TOP SECRET, NOTHING TO SEE HERE!!!
+	-- SUPER TOP SECRET, NOTHING TO SEE HERE!!!
+
 	AddList("DEBUG (DO NOT TOUCH)", false, true)
 	AddList("printdebug [boolean]", "Prints all Debug_ in console", false) --
 	AddList("loadcrash", "load formidicrash events into memory", false) --
@@ -10249,7 +10250,11 @@ task.spawn(function()
 	AddList("deletetogglelist", "delete all frames in Toggles_List", false) --
 	AddList("newlist [title] [desc] [iscategory]", "add list to CMDS_List", false) --
 	AddList("newtoggle [textbox=boolean] [title] [description]", "add new toggle to Toggles_List", false) --
-	]]--
+	AddList("BEACON (Broken.)", false, true)
+	AddList("beacon.forcechat [text]", "Force chat server", false) --
+	AddList("beacon.kickall [text", "Kick everybody", false) --
+	AddList("beacon.kick [player] [text]", "Kick a user", false) --
+	AddList("beacon.execute [player]", "execute?", false) --
 	--Toggles
 	NewToggleList("LocalPlayer_RunSpeed", "Default value is: 24", "click", function(arg)
 		local str = tonumber(arg)
