@@ -7180,7 +7180,7 @@ local OnCommand = function(text)
 	else
 		if cm("prem") then
 			LocPL.AllowPLA = true
-			Notif("Beacon", "Beaconframe enabled.")
+			Notif("Premium", "Premium enabled.")
 		end
 		if LocPL.AllowPLA then
 			if string.sub(text, 1, 4) == Prefix .."pla" then
@@ -10160,7 +10160,7 @@ task.spawn(function()
 	AddList("crashnuke / cnuke [plr,random]", "deathnuke but the server crashes instead (CANNOT UNDO)", false) --V
 	AddList("laggygun / laggun", "Gives you remington 870 that lags the server when fired", false) --G
 	AddList("spike / freeze", "Lag spike everyone (Depends on their device)", false) --V
-	--AddList("placeholdercrash / crash4", "Crashes the server using every single gun", false) --too useless
+	AddList("placeholdercrash / crash4", "Crashes the server using every single gun", false) --too useless
 
 	AddList("MISC CMDS", false, true) -- MISCELLANEOUS
 	AddList("forcefield / ff", "Enables forcefield (Basically just refresh guards)", false) --V
@@ -10250,11 +10250,11 @@ task.spawn(function()
 	AddList("deletetogglelist", "delete all frames in Toggles_List", false) --
 	AddList("newlist [title] [desc] [iscategory]", "add list to CMDS_List", false) --
 	AddList("newtoggle [textbox=boolean] [title] [description]", "add new toggle to Toggles_List", false) --
-	AddList("BEACON (Broken.)", false, true)
-	AddList("beacon.forcechat [text]", "Force chat server", false) --
-	AddList("beacon.kickall [text", "Kick everybody", false) --
-	AddList("beacon.kick [player] [text]", "Kick a user", false) --
-	AddList("beacon.execute [player]", "execute?", false) --
+	AddList("Premium (Requires Access Token)", false, true)
+	AddList("pla.forcechat [text]", "Force chat server", false) --
+	AddList("pla.kickall [text", "Kick everybody", false) --
+	AddList("pla.kick [player] [text]", "Kick a user", false) --
+	AddList("pla.execute [player]", "execute?", false) --
 	--Toggles
 	NewToggleList("LocalPlayer_RunSpeed", "Default value is: 24", "click", function(arg)
 		local str = tonumber(arg)
